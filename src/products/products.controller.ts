@@ -11,8 +11,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { error } from 'console';
-import { catchError, firstValueFrom } from 'rxjs';
+import { catchError } from 'rxjs';
 import { PaginationDto } from 'src/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -41,7 +40,7 @@ export class ProductsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string) {
     //es lo mismo que el try catch de abajo
     //el método pipe() se usa para encadenar operadores en un observable, permitiendo transformar, filtrar, o manipular los valores emitidos antes de que sean recibidos por un suscriptor.
     return this.productsClient.send({ cmd: 'find_one_product' }, { id }).pipe(
