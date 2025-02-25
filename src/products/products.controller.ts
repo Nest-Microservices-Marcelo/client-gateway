@@ -15,35 +15,27 @@ import { catchError } from 'rxjs';
 import { PaginationDto } from 'src/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { PRODUCT_SERVICE } from 'src/config';
+import { NATS_SERVICE } from 'src/config';
 
 @Controller('products')
 export class ProductsController {
-  constructor(
-    @Inject(PRODUCT_SERVICE) private readonly productsClient: ClientProxy,
-  ) {}
+  constructor(@Inject(NATS_SERVICE) private readonly client: ClientProxy) {}
 
   @Post()
   createProduct(@Body() createProductDto: CreateProductDto) {
-    return this.productsClient.send(
-      { cmd: 'create_product' },
-      createProductDto,
-    );
+    return this.client.send({ cmd: 'create_product' }, createProductDto);
   }
 
   @Get()
   findAllProducts(@Query() paginationDto: PaginationDto) {
-    return this.productsClient.send(
-      { cmd: 'find_all_products' },
-      paginationDto,
-    );
+    return this.client.send({ cmd: 'find_all_products' }, paginationDto);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
     //es lo mismo que el try catch de abajo
     //el método pipe() se usa para encadenar operadores en un observable, permitiendo transformar, filtrar, o manipular los valores emitidos antes de que sean recibidos por un suscriptor.
-    return this.productsClient.send({ cmd: 'find_one_product' }, { id }).pipe(
+    return this.client.send({ cmd: 'find_one_product' }, { id }).pipe(
       catchError((err) => {
         throw new RpcException(err);
       }),
@@ -62,7 +54,7 @@ export class ProductsController {
 
   @Delete(':id')
   deleteProduct(@Param('id') id: string) {
-    return this.productsClient.send({ cmd: 'delete_product' }, { id });
+    return this.client.send({ cmd: 'delete_product' }, { id });
   }
 
   @Patch(':id')
@@ -71,7 +63,7 @@ export class ProductsController {
     @Body() updateProductDto: UpdateProductDto,
   ) {
     //Se envia el updateProductDto con el spread operator para pasar todos los valores inclusive el id, como espera el updateProductDto de products-ms
-    return this.productsClient
+    return this.client
       .send({ cmd: 'update_product' }, { id, ...updateProductDto })
       .pipe(
         catchError((err) => {
