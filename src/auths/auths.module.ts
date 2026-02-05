@@ -6,4 +6,4 @@ import { NatsModule } from 'src/transports/nats.module';
   controllers: [AuthsController],
   imports: [NatsModule],
 })
-export class AuthsModule {}
+
